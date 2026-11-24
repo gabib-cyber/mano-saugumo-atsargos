@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173b32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Saugumo atsargos">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Mano saugumo atsargos</title>
+<style>
+:root{--bg:#f3f5f1;--card:#fff;--ink:#1c2924;--muted:#68766f;--green:#205b47;--line:#e0e7e1;--orange:#a85b19;--red:#a33b35}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+header{background:#173b32;color:white;padding:calc(18px + env(safe-area-inset-top)) 18px 18px;border-radius:0 0 22px 22px}
+h1{font-size:24px;margin:0 0 5px}header p{margin:0;color:#d6e5dc;font-size:13px}
+main{max-width:720px;margin:auto;padding:14px}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}.stat,.panel,.item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px}
+.stat strong{font-size:24px;display:block;color:var(--green)}.stat span,.small{font-size:12px;color:var(--muted)}
+.progress{height:8px;background:#dfe7e1;border-radius:20px;overflow:hidden;margin-top:10px}.progress i{display:block;height:100%;background:#39845f;width:0}
+nav{display:flex;gap:7px;overflow:auto;padding:2px 0 12px}button,.tab{border:0;border-radius:12px;padding:10px 13px;background:#e5ece6;color:#244236;font-weight:650;font-size:13px;white-space:nowrap}
+.tab.active,button.primary{background:var(--green);color:white}
+h2{font-size:18px;margin:18px 2px 10px}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.item{margin:8px 0;padding:12px}.itemtop{display:flex;align-items:flex-start;gap:9px}.itemtop input[type=checkbox]{width:22px;height:22px;accent-color:var(--green);margin:1px 0 0}
+.itemname{font-weight:700;flex:1}.qtyrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 0 31px}
+label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}input,select,textarea{width:100%;border:1px solid #d5dfd8;border-radius:10px;padding:10px;background:#fff;color:var(--ink);font:inherit;font-size:15px}
+input[type=number]{padding:9px}.hint{font-size:11px;color:var(--muted);margin:7px 0 0 31px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1}
+.panel{margin:10px 0}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.formgrid .wide{grid-column:1/-1}
+.checkline{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.checkline:last-child{border:0}.checkline input{width:20px;height:20px;accent-color:var(--green)}
+.notice{background:#fff6e9;border:1px solid #f0d8b7;color:#754515;border-radius:13px;padding:12px;font-size:13px;line-height:1.45}
+.muted{color:var(--muted)}.danger{background:#f8e9e7;color:var(--red)}.hidden{display:none!important}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:18px}
+</style>
+</head>
+<body>
+<header><h1>🛡️ Mano saugumo atsargos</h1><p>2 žmonėms · 72 valandoms · namams ir išvykimo krepšiui</p></header>
+<main>
+<div class="summary">
+ <div class="stat"><strong id="countDone">0</strong><span>Užbaigti įrašai</span></div>
+ <div class="stat"><strong id="countMissing">0</strong><span>Dar reikia pasirūpinti</span></div>
+</div>
+<div class="panel"><div class="sectionhead"><b>Bendras pasirengimas</b><b id="percent">0 %</b></div><div class="progress"><i id="bar"></i></div><p class="small">Pažymėk, ką jau turi. Kiekį gali bet kada pakeisti.</p></div>
+<nav id="tabs">
+ <button class="tab active" data-view="atsargos">Atsargos</button>
+ <button class="tab" data-view="krepšys">Išvykimo krepšys</button>
+ <button class="tab" data-view="šeima">Šeimos planas</button>
+ <button class="tab" data-view="atsarginė">Atsarginė kopija</button>
+</nav>
+<section id="view-atsargos">
+ <div class="notice">Kiekiai yra pradinis orientyras dviem žmonėms 3 paroms. Pritaikyk juos pagal amžių, sveikatą, mitybą ir individualius poreikius. Atsargas laikyk saugiai ir reguliariai tikrink galiojimą.</div>
+ <div class="sectionhead"><h2>Namų atsargos</h2><select id="filter" style="width:auto;max-width:48%"><option value="Visos">Visos kategorijos</option></select></div>
+ <div id="stockList"></div>
+ <div class="panel"><h3 style="margin:0 0 10px">＋ Pridėti savo daiktą</h3><div class="formgrid">
+ <div class="wide"><label>Daikto pavadinimas</label><input id="newName" placeholder="Pvz., žvakės"></div>
+ <div><label>Kategorija</label><select id="newCat"></select></div><div><label>Matavimo vienetas</label><input id="newUnit" placeholder="vnt."></div>
+ <div><label>Reikia turėti</label><input id="newNeed" type="number" min="0" step="any" value="1"></div><div><label>Turiu</label><input id="newHave" type="number" min="0" step="any" value="0"></div>
+ </div><div class="actions"><button class="primary" id="addItem">Pridėti į sąrašą</button></div></div>
+</section>
+<section id="view-krepšys" class="hidden">
+ <div class="notice">Išvykimo krepšį laikyk lengvai pasiekiamoje vietoje. Kiekvienam žmogui gali reikėti atskiro krepšio; pritaikyk turinį pagal sezoną ir poreikius.</div>
+ <h2>Išvykimo krepšio kontrolinis sąrašas</h2><div id="bagList"></div>
+ <div class="actions"><button class="primary" id="addBag">＋ Pridėti punktą</button></div>
+</section>
+<section id="view-šeima" class="hidden">
+ <h2>Šeimos pasiruošimas</h2>
+ <div class="panel"><b>Dokumentai ir pinigai</b><div id="docs"></div></div>
+ <div class="panel"><b>Ryšys ir susitikimo planas</b>
+ <label style="margin-top:10px">Kontaktinis asmuo ne šeimoje</label><input id="contact" placeholder="Vardas ir telefono numeris">
+ <label style="margin-top:10px">Kur susitiksime, jei negalėsime susisiekti?</label><textarea id="meeting" rows="2" placeholder="Sutarta susitikimo vieta"></textarea>
+ <label style="margin-top:10px">Svarbūs telefono numeriai / pastabos</label><textarea id="numbers" rows="3" placeholder="Užrašyk numerius ir svarbią informaciją"></textarea></div>
+ <div class="panel"><b>Namai, augintiniai ir transportas</b><div id="homeChecks"></div>
+ <label style="margin-top:10px">Augintinių poreikiai / kita</label><textarea id="pets" rows="2" placeholder="Maistas, vaistai, transportavimo priemonės..."></textarea>
+ <label style="margin-top:10px">Transporto priemonė / degalų planas</label><textarea id="transport" rows="2" placeholder="Automobilis, degalų atsargos pagal saugaus laikymo taisykles..."></textarea></div>
+ <div class="actions"><button class="primary" id="saveFamily">Išsaugoti šeimos planą</button></div><p class="small" id="saveMsg"></p>
+</section>
+<section id="view-atsarginė" class="hidden">
+ <h2>Duomenų atsarginė kopija</h2><div class="notice">Duomenys saugomi šiame įrenginyje. Eksportuok kopiją į „Failai“ arba kitą saugią vietą. Jei išvalysi naršyklės duomenis ar pašalinsi programėlę, neeksportuoti duomenys gali dingti.</div>
+ <div class="panel"><b>Eksportuoti duomenis</b><p class="small">Sukuria JSON failą su tavo atsargomis ir šeimos planu.</p><button class="primary" id="export">Atsisiųsti atsarginę kopiją</button></div>
+ <div class="panel"><b>Atkurti iš kopijos</b><label>Pasirink anksčiau eksportuotą JSON failą</label><input id="importFile" type="file" accept=".json,application/json"><div class="actions"><button id="import" class="primary">Atkurti duomenis</button></div></div>
+ <div class="panel"><b>Programėlės informacija</b><p class="small">Versija 1.0 · Lietuvių kalba · Vietinis saugojimas šiame telefone. Pirmam įdiegimui ir atnaujinimams reikalingas internetas; po įkėlimo programėlė gali veikti neprisijungus, jei įdiegta per HTTPS ir atvertas bent vienas kartas.</p></div>
+</section>
+</main><footer>Pasiruošk ramiai. Tikrink atsargas reguliariai.</footer>
+<script>
+const CATS=["Vanduo ir maistas","Vaistai ir pirmoji pagalba","Elektra ir apšvietimas","Ryšys ir informacija","Higiena","Drabužiai ir šiluma","Įrankiai ir kita"];
+const seed=[
+["Geriamasis vanduo","l",12,"Vanduo ir maistas","Orientyras: apie 6 l žmogui 72 valandoms; papildomai įvertink maisto ruošimą ir higieną."],
+["Ilgai negendantis maistas","porc.",12,"Vanduo ir maistas","Rinkis jau paruoštą valgyti arba lengvai paruošiamą maistą."],
+["Konservai","vnt.",6,"Vanduo ir maistas","Turėk atidarytuvą, jei skardinės jo reikalauja."],
+["Kruopos / makaronai","kg",1,"Vanduo ir maistas","Rinkis pagal įprastą mitybą ir turimą vandens bei kuro kiekį."],
+["Užkandžiai, riešutai, džiovinti vaisiai","pak.",4,"Vanduo ir maistas","Atsižvelk į alergijas ir galiojimo terminus."],
+["Maisto atidarytuvas","vnt.",1,"Vanduo ir maistas","Jei turi konservų skardinėse."],
+["Pirmosios pagalbos vaistinėlė","vnt.",1,"Vaistai ir pirmoji pagalba","Patikrink sudėtį ir galiojimą."],
+["Asmeniniai vaistai","3 parų atsarga",1,"Vaistai ir pirmoji pagalba","Pagal gydytojo nurodymus; vaistus laikyk tinkamomis sąlygomis."],
+["Žibintuvėlis","vnt.",2,"Elektra ir apšvietimas","Po vieną kiekvienam žmogui."],
+["Atsarginės baterijos","pak.",2,"Elektra ir apšvietimas","Tinkamo tipo tavo įrenginiams."],
+["Įkrautas išorinis akumuliatorius","vnt.",2,"Elektra ir apšvietimas","Reguliariai įkrauk; nepamiršk laidų."],
+["Baterijomis maitinamas radijas","vnt.",1,"Ryšys ir informacija","Patikrink, ar veikia ir turi baterijų."],
+["Svarbių dokumentų kopijos","rinkinys",1,"Ryšys ir informacija","Saugok vandeniui atspariame dėkle."],
+["Grynieji pinigai smulkiomis kupiūromis","rinkinys",1,"Ryšys ir informacija","Pagal šeimos galimybes."],
+["Drėgnos servetėlės","pak.",2,"Higiena",""],
+["Tualetinis popierius","rit.",2,"Higiena",""],
+["Rankų dezinfekantas","but.",1,"Higiena",""],
+["Šilti drabužiai ir kojinės","rinkinys",2,"Drabužiai ir šiluma","Pagal sezoną."],
+["Šilta antklodė / miegmaišis","vnt.",2,"Drabužiai ir šiluma",""],
+["Darbo pirštinės","pora",2,"Įrankiai ir kita",""],
+["Lipni juosta ir universalus įrankis","rinkinys",1,"Įrankiai ir kita",""]
+];
+const bagSeed=["Vanduo ir maisto davinys kelionei","Asmens dokumentai ir jų kopijos","Asmeniniai vaistai ir maža vaistinėlė","Telefonas, įkroviklis ir išorinė baterija","Žibintuvėlis ir atsarginės baterijos","Radijas (jei turite)","Šilti drabužiai, lietpaltis ir atsarginės kojinės","Higienos priemonės ir servetėlės","Grynieji pinigai","Raktai ir svarbūs kontaktai popieriuje","Vandeniui atsparus dokumentų dėklas","Vandens butelis ir lengvi užkandžiai"];
+const docSeed=["Asmens dokumentai galioja","Dokumentų kopijos paruoštos","Svarbi informacija užrašyta popieriuje","Žinome artimiausią priedangą / saugią vietą","Šeima aptarė susitikimo vietą","Žinome, kaip evakuosimės"];
+let state=load();
+function load(){try{let s=JSON.parse(localStorage.getItem("saugumoAtsargosV1"));if(s&&s.items)return s}catch(e){}return {items:seed.map((x,i)=>({id:i+1,name:x[0],unit:x[1],need:x[2],have:0,cat:x[3],note:x[4],done:false})),bag:bagSeed.map((name,i)=>({id:i+1,name,done:false})),docs:docSeed.map((name,i)=>({name,done:false})),family:{homeChecks:["Žinome, kur namuose yra vandens uždarymo ventilis","Žinome, kur yra elektros skydelis","Turime saugų būdą gaminti maistą be elektros","Žinome artimiausią priedangą / saugią vietą","Žinome, kaip saugiai susisiekti su artimaisiais"].map(name=>({name,done:false}))}}}
+function persist(){localStorage.setItem("saugumoAtsargosV1",JSON.stringify(state));renderStats()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function renderStats(){let done=state.items.filter(x=>x.have>=x.need&&x.need>0).length;let n=state.items.length;document.getElementById("countDone").textContent=done;document.getElementById("countMissing").textContent=n-done;let p=n?Math.round(done/n*100):0;document.getElementById("percent").textContent=p+" %";document.getElementById("bar").style.width=p+"%"}
+function renderStock(){let f=document.getElementById("filter").value;let el=document.getElementById("stockList");el.innerHTML="";let items=state.items.filter(x=>f==="Visos"||x.cat===f);let grouped={};items.forEach(x=>(grouped[x.cat]??=[]).push(x));Object.entries(grouped).forEach(([cat,arr])=>{let h=document.createElement("h2");h.textContent=cat;el.append(h);arr.forEach(x=>{let d=document.createElement("div");d.className="item";d.innerHTML=`<div class="itemtop"><input type="checkbox" aria-label="Pažymėti kaip turimą" ${x.have>=x.need&&x.need>0?"checked":""}><div class="itemname">${esc(x.name)}<div class="small">${x.note?esc(x.note):""}</div></div><button class="danger" style="padding:7px 9px" aria-label="Ištrinti">✕</button></div><div class="qtyrow"><div><label>Tikslas (${esc(x.unit)})</label><input class="need" type="number" min="0" step="any" value="${x.need}"></div><div><label>Turiu (${esc(x.unit)})</label><input class="have" type="number" min="0" step="any" value="${x.have}"></div></div><div class="hint">${x.have>=x.need?"Pakankamas kiekis":`Trūksta: ${Math.max(0,x.need-x.have)} ${esc(x.unit)}`}</div>`;let [check,del]=d.querySelectorAll('input[type=checkbox],button');check.onchange=()=>{x.have=check.checked?x.need:0;persist();renderStock()};del.onclick=()=>{if(confirm("Ištrinti šį daiktą?")){state.items=state.items.filter(y=>y.id!==x.id);persist();renderStock()}};d.querySelector(".need").onchange=e=>{x.need=Math.max(0,Number(e.target.value)||0);persist();renderStock()};d.querySelector(".have").onchange=e=>{x.have=Math.max(0,Number(e.target.value)||0);persist();renderStock()};el.append(d)})})}
+function renderBag(){let el=document.getElementById("bagList");el.innerHTML="";state.bag.forEach((x,i)=>{let d=document.createElement("div");d.className="checkline";d.innerHTML=`<input type="checkbox" ${x.done?"checked":""}><span style="flex:1;${x.done?"text-decoration:line-through;color:#68766f":""}">${esc(x.name)}</span><button class="danger" style="padding:6px 9px">✕</button>`;d.querySelector("input").onchange=e=>{x.done=e.target.checked;persist();renderBag()};d.querySelector("button").onclick=()=>{state.bag.splice(i,1);persist();renderBag()};el.append(d)})}
+function renderChecks(id,arr){let el=document.getElementById(id);el.innerHTML="";arr.forEach((x,i)=>{let d=document.createElement("label");d.className="checkline";d.innerHTML=`<input type="checkbox" ${x.done?"checked":""}><span>${esc(x.name)}</span>`;d.querySelector("input").onchange=e=>{x.done=e.target.checked;persist()};el.append(d)})}
+function renderFamily(){renderChecks("docs",state.docs);renderChecks("homeChecks",state.family.homeChecks||[]);["contact","meeting","numbers","pets","transport"].forEach(k=>document.getElementById(k).value=state.family[k]||"")}
+function render(){let f=document.getElementById("filter"),v=f.value;f.innerHTML='<option>Visos</option>'+CATS.map(x=>`<option>${esc(x)}</option>`).join("");f.value=CATS.includes(v)?v:"Visos";document.getElementById("newCat").innerHTML=CATS.map(x=>`<option>${esc(x)}</option>`).join("");renderStock();renderBag();renderFamily();renderStats()}
+document.getElementById("filter").onchange=renderStock;
+document.getElementById("addItem").onclick=()=>{let name=document.getElementById("newName").value.trim();if(!name)return alert("Įrašyk daikto pavadinimą.");state.items.push({id:Date.now(),name,unit:document.getElementById("newUnit").value.trim()||"vnt.",need:Math.max(0,Number(document.getElementById("newNeed").value)||0),have:Math.max(0,Number(document.getElementById("newHave").value)||0),cat:document.getElementById("newCat").value,note:""});document.getElementById("newName").value="";document.getElementById("newUnit").value="";persist();renderStock()};
+document.getElementById("addBag").onclick=()=>{let n=prompt("Ką dar reikia įsidėti į išvykimo krepšį?");if(n&&n.trim()){state.bag.push({id:Date.now(),name:n.trim(),done:false});persist();renderBag()}};
+document.getElementById("saveFamily").onclick=()=>{["contact","meeting","numbers","pets","transport"].forEach(k=>state.family[k]=document.getElementById(k).value);persist();document.getElementById("saveMsg").textContent="Šeimos planas išsaugotas šiame telefone."};
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));["atsargos","krepšys","šeima","atsarginė"].forEach(v=>document.getElementById("view-"+v).classList.toggle("hidden",v!==b.dataset.view))});
+document.getElementById("export").onclick=()=>{["contact","meeting","numbers","pets","transport"].forEach(k=>state.family[k]=document.getElementById(k).value);let blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mano-saugumo-atsargos-kopija.json";a.click();URL.revokeObjectURL(a.href)};
+document.getElementById("import").onclick=()=>{let file=document.getElementById("importFile").files[0];if(!file)return alert("Pirmiausia pasirink kopijos failą.");let r=new FileReader();r.onload=()=>{try{let s=JSON.parse(r.result);if(!s.items||!s.bag)throw Error();state=s;persist();render();alert("Duomenys atkurti.")}catch(e){alert("Nepavyko perskaityti kopijos failo.")}};r.readAsText(file)};
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+render();
+</script>
+</body></html>
